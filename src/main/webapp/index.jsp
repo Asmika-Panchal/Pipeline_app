@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>To-Do List by Asmika- 23101A2002 Div- A</title>
+    <title>To-Do List done by Asmika- 23101A2002 Div- A</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
