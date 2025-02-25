@@ -1,4 +1,41 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+
+<%
+    // Retrieve the task list from session
+    ArrayList<String> tasks = (ArrayList<String>) session.getAttribute("tasks");
+    if (tasks == null) {
+        tasks = new ArrayList<>();
+        session.setAttribute("tasks", tasks);
+    }
+
+    // Handle task addition
+    String newTask = request.getParameter("task");
+    if (newTask != null && !newTask.trim().isEmpty()) {
+        tasks.add(newTask);
+    }
+
+    // Handle task deletion
+    String deleteIndexStr = request.getParameter("deleteIndex");
+    if (deleteIndexStr != null) {
+        int deleteIndex = Integer.parseInt(deleteIndexStr);
+        if (deleteIndex >= 0 && deleteIndex < tasks.size()) {
+            tasks.remove(deleteIndex);
+        }
+    }
+
+    // Handle task update
+    String updateIndexStr = request.getParameter("updateIndex");
+    String updatedTask = request.getParameter("updatedTask");
+    if (updateIndexStr != null && updatedTask != null) {
+        int updateIndex = Integer.parseInt(updateIndexStr);
+        if (updateIndex >= 0 && updateIndex < tasks.size() && !updatedTask.trim().isEmpty()) {
+            tasks.set(updateIndex, updatedTask);
+        }
+    }
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,10 +85,10 @@
             justify-content: space-between;
             align-items: center;
         }
-        form[style="display:inline;"] button {
+        .delete-btn {
             background-color: #dc3545;
         }
-        form[style="display:inline;"] button:hover {
+        .delete-btn:hover {
             background-color: #c82333;
         }
     </style>
@@ -59,34 +96,30 @@
 <body>
     <h2>To-Do List</h2>
     
-    <form action="TodoServlet" method="post">
+    <!-- Form to Add Task -->
+    <form method="post">
         <input type="text" name="task" placeholder="Enter a new task" required>
-        <input type="hidden" name="action" value="add">
         <button type="submit">Add Task</button>
     </form>
     
     <ul>
-        <%@ page import="java.util.List" %>
-        <%@ page import="javax.servlet.http.HttpSession" %>
-        <% List<String> tasks = (List<String>) session.getAttribute("tasks"); %>
-        <% if (tasks != null) { %>
-            <% for (int i = 0; i < tasks.size(); i++) { %>
-                <li>
-                    <%= tasks.get(i) %> 
-                    <form action="TodoServlet" method="post" style="display:inline;">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="index" value="<%= i %>">
-                        <button type="submit">Delete</button>
-                    </form>
-                    
-                    <form action="TodoServlet" method="post" style="display:inline;">
-                        <input type="text" name="updatedTask" placeholder="Update task" required>
-                        <input type="hidden" name="action" value="update">
-                        <input type="hidden" name="index" value="<%= i %>">
-                        <button type="submit">Update</button>
-                    </form>
-                </li>
-            <% } %>
+        <% for (int i = 0; i < tasks.size(); i++) { %>
+            <li>
+                <%= tasks.get(i) %>
+                
+                <!-- Delete Button -->
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="deleteIndex" value="<%= i %>">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+                
+                <!-- Update Form -->
+                <form method="post" style="display:inline;">
+                    <input type="text" name="updatedTask" placeholder="Update task" required>
+                    <input type="hidden" name="updateIndex" value="<%= i %>">
+                    <button type="submit">Update</button>
+                </form>
+            </li>
         <% } %>
     </ul>
 </body>
