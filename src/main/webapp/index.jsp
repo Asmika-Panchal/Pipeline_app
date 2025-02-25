@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>To-Do List done by Asmika- 23101A2002 Div- A</title>
+    <title>Jsp To-Do List</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -71,7 +71,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>JSP To-Do List</h2>
+        <h2>To-Do List by Asmika Panchal 23101A2002</h2>
         <form method="post">
             <input type="text" name="task" placeholder="Enter a task" required>
             <button type="submit">Add Task</button>
