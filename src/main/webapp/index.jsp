@@ -1,126 +1,124 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="javax.servlet.http.HttpSession" %>
-
-<%
-    // Retrieve the task list from session
-    ArrayList<String> tasks = (ArrayList<String>) session.getAttribute("tasks");
-    if (tasks == null) {
-        tasks = new ArrayList<>();
-        session.setAttribute("tasks", tasks);
-    }
-
-    // Handle task addition
-    String newTask = request.getParameter("task");
-    if (newTask != null && !newTask.trim().isEmpty()) {
-        tasks.add(newTask);
-    }
-
-    // Handle task deletion
-    String deleteIndexStr = request.getParameter("deleteIndex");
-    if (deleteIndexStr != null) {
-        int deleteIndex = Integer.parseInt(deleteIndexStr);
-        if (deleteIndex >= 0 && deleteIndex < tasks.size()) {
-            tasks.remove(deleteIndex);
-        }
-    }
-
-    // Handle task update
-    String updateIndexStr = request.getParameter("updateIndex");
-    String updatedTask = request.getParameter("updatedTask");
-    if (updateIndexStr != null && updatedTask != null) {
-        int updateIndex = Integer.parseInt(updateIndexStr);
-        if (updateIndex >= 0 && updateIndex < tasks.size() && !updatedTask.trim().isEmpty()) {
-            tasks.set(updateIndex, updatedTask);
-        }
-    }
-%>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>To-Do List</title>
+    <meta charset="UTF-8">
+    <title>JSP To-Do List</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
             padding: 20px;
         }
-        h2 {
-            color: #333;
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            width: 40%;
+            margin: auto;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
         }
-        form {
-            margin-bottom: 15px;
-        }
-        input[type="text"] {
+        input, button {
             padding: 10px;
-            width: 250px;
+            margin: 10px;
+            border-radius: 8px;
             border: 1px solid #ccc;
-            border-radius: 5px;
         }
         button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
             background-color: #28a745;
             color: white;
             cursor: pointer;
+            border: none;
         }
         button:hover {
             background-color: #218838;
         }
         ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
         }
         li {
-            background: white;
-            margin: 10px auto;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            background: #e0f7fa;
+            padding: 10px;
+            margin: 5px;
             display: flex;
             justify-content: space-between;
+            border-radius: 5px;
             align-items: center;
         }
-        .delete-btn {
-            background-color: #dc3545;
+        .delete, .update {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
         }
-        .delete-btn:hover {
-            background-color: #c82333;
+        .delete:hover {
+            background: #c82333;
+        }
+        .update {
+            background: #ffc107;
+            margin-right: 5px;
+        }
+        .update:hover {
+            background: #e0a800;
         }
     </style>
 </head>
 <body>
-    <h2>To-Do List</h2>
-    
-    <!-- Form to Add Task -->
-    <form method="post">
-        <input type="text" name="task" placeholder="Enter a new task" required>
-        <button type="submit">Add Task</button>
-    </form>
-    
-    <ul>
-        <% for (int i = 0; i < tasks.size(); i++) { %>
-            <li>
-                <%= tasks.get(i) %>
-                
-                <!-- Delete Button -->
-                <form method="post" style="display:inline;">
-                    <input type="hidden" name="deleteIndex" value="<%= i %>">
-                    <button type="submit" class="delete-btn">Delete</button>
-                </form>
-                
-                <!-- Update Form -->
-                <form method="post" style="display:inline;">
-                    <input type="text" name="updatedTask" placeholder="Update task" required>
-                    <input type="hidden" name="updateIndex" value="<%= i %>">
-                    <button type="submit">Update</button>
-                </form>
-            </li>
-        <% } %>
-    </ul>
+    <div class="container">
+        <h2>JSP To-Do List</h2>
+        <form method="post">
+            <input type="text" name="task" placeholder="Enter a task" required>
+            <button type="submit">Add Task</button>
+        </form>
+        
+        <% 
+            ArrayList<String> tasks = (ArrayList<String>) session.getAttribute("tasks");
+            if (tasks == null) {
+                tasks = new ArrayList<>();
+            }
+            String newTask = request.getParameter("task");
+            if (newTask != null && !newTask.trim().isEmpty()) {
+                tasks.add(newTask);
+                session.setAttribute("tasks", tasks);
+            }
+            String deleteTask = request.getParameter("delete");
+            if (deleteTask != null) {
+                tasks.remove(deleteTask);
+                session.setAttribute("tasks", tasks);
+            }
+            String updateOldTask = request.getParameter("updateOld");
+            String updateNewTask = request.getParameter("updateNew");
+            if (updateOldTask != null && updateNewTask != null && !updateNewTask.trim().isEmpty()) {
+                int index = tasks.indexOf(updateOldTask);
+                if (index != -1) {
+                    tasks.set(index, updateNewTask);
+                    session.setAttribute("tasks", tasks);
+                }
+            }
+        %>
+        
+        <ul>
+            <% for (String task : tasks) { %>
+                <li>
+                    <%= task %>
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="updateOld" value="<%= task %>">
+                        <input type="text" name="updateNew" placeholder="Edit task" required>
+                        <button type="submit" class="update">Update</button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="delete" value="<%= task %>">
+                        <button type="submit" class="delete">Delete</button>
+                    </form>
+                </li>
+            <% } %>
+        </ul>
+    </div>
 </body>
 </html>
