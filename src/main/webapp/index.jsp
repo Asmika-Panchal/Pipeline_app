@@ -4,19 +4,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Jsp To-Do List</title>
+    <title>Library Management System</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
-            background-color: #f0f8ff;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
         }
         .container {
             background: #ffffff;
             padding: 20px;
-            width: 40%;
+            width: 50%;
             margin: auto;
             box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
             border-radius: 12px;
@@ -28,20 +28,20 @@
             border: 1px solid #ccc;
         }
         button {
-            background-color: #28a745;
+            background-color: #007bff;
             color: white;
             cursor: pointer;
             border: none;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
         ul {
             list-style: none;
             padding: 0;
         }
         li {
-            background: #e0f7fa;
+            background: #e9ecef;
             padding: 10px;
             margin: 5px;
             display: flex;
@@ -71,49 +71,65 @@
 </head>
 <body>
     <div class="container">
-        <h2>To-Do List by Asmika Panchal 23101A2002</h2>
+        <h2>Library Management System</h2>
         <form method="post">
-            <input type="text" name="task" placeholder="Enter a task" required>
-            <button type="submit">Add Task</button>
+            <input type="text" name="bookTitle" placeholder="Enter Book Title" required>
+            <input type="text" name="author" placeholder="Enter Author" required>
+            <button type="submit">Add Book</button>
         </form>
         
         <% 
-            ArrayList<String> tasks = (ArrayList<String>) session.getAttribute("tasks");
-            if (tasks == null) {
-                tasks = new ArrayList<>();
+            class Book {
+                String title;
+                String author;
+                Book(String title, String author) {
+                    this.title = title;
+                    this.author = author;
+                }
             }
-            String newTask = request.getParameter("task");
-            if (newTask != null && !newTask.trim().isEmpty()) {
-                tasks.add(newTask);
-                session.setAttribute("tasks", tasks);
+            
+            ArrayList<Book> books = (ArrayList<Book>) session.getAttribute("books");
+            if (books == null) {
+                books = new ArrayList<>();
             }
-            String deleteTask = request.getParameter("delete");
-            if (deleteTask != null) {
-                tasks.remove(deleteTask);
-                session.setAttribute("tasks", tasks);
+            String newTitle = request.getParameter("bookTitle");
+            String newAuthor = request.getParameter("author");
+            if (newTitle != null && newAuthor != null && !newTitle.trim().isEmpty() && !newAuthor.trim().isEmpty()) {
+                books.add(new Book(newTitle, newAuthor));
+                session.setAttribute("books", books);
             }
-            String updateOldTask = request.getParameter("updateOld");
-            String updateNewTask = request.getParameter("updateNew");
-            if (updateOldTask != null && updateNewTask != null && !updateNewTask.trim().isEmpty()) {
-                int index = tasks.indexOf(updateOldTask);
-                if (index != -1) {
-                    tasks.set(index, updateNewTask);
-                    session.setAttribute("tasks", tasks);
+            String deleteTitle = request.getParameter("delete");
+            if (deleteTitle != null) {
+                books.removeIf(book -> book.title.equals(deleteTitle));
+                session.setAttribute("books", books);
+            }
+            String updateOldTitle = request.getParameter("updateOld");
+            String updateNewTitle = request.getParameter("updateNew");
+            String updateNewAuthor = request.getParameter("updateNewAuthor");
+            if (updateOldTitle != null && updateNewTitle != null && updateNewAuthor != null) {
+                for (Book book : books) {
+                    if (book.title.equals(updateOldTitle)) {
+                        book.title = updateNewTitle;
+                        book.author = updateNewAuthor;
+                        session.setAttribute("books", books);
+                        break;
+                    }
                 }
             }
         %>
         
         <ul>
-            <% for (String task : tasks) { %>
+            <% for (Book book : books) { %>
                 <li>
-                    <%= task %>
+                    <%= book.title %> by <%= book.author %>
                     <form method="post" style="display:inline;">
-                        <input type="hidden" name="updateOld" value="<%= task %>">
-                        <input type="text" name="updateNew" placeholder="Edit task" required>
+                        <input type="hidden" name="updateOld" value="<%= book.title %>">
+                        <input type="text" name="updateNew" placeholder="New Title" required>
+                        <input type="text" name="updateNewAuthor" placeholder="New Author" required>
                         <button type="submit" class="update">Update</button>
                     </form>
                     <form method="post" style="display:inline;">
-                        <input type="hidden" name="delete" value="<%= task %>">
+                        <input type="hidden" name="delete" value="<%= book.title %>">
                         <button type="submit" class="delete">Delete</button>
                     </form>
                 </li>
